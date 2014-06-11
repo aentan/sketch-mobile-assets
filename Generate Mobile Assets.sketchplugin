@@ -31,13 +31,13 @@ library.sandbox = {
 }
 
 function main(){
-    
+
     var fileUrl = [doc fileURL];
     if (fileUrl == null) {
 	    alert("Please save your document before exporting assets");
 	    return;
     }
-    
+
     var includeSuffix = configVars.includeSuffix;
     var suffix = "";
     if (includeSuffix == "yes"){
@@ -46,8 +46,8 @@ function main(){
         } else {
             suffix = "_" + configVars.suffixName;
         }
-    } 
-    
+    }
+
     var includePrefix = configVars.includePrefix;
     var prefix = "";
     if (includePrefix == "yes"){
@@ -61,8 +61,8 @@ function main(){
         } else {
             prefix = configVars.prefixName + "_";
         }
-    } 
-    
+    }
+
     var base_dir = get_dir_from_prompt(get_cwd());
     if (base_dir == null){
 	    alert("Not saving any assets");
@@ -72,7 +72,7 @@ function main(){
     var size = configVars.size;
     var page = [doc currentPage];
     var slices = [[doc currentPage] exportableLayers];
-    
+
     library.sandbox.forEachObj(slices, function(slice){
         process_slice(slice, doc, base_dir, prefix, suffix, size);
     });
@@ -113,22 +113,22 @@ function process_slice(slice, doc, base_dir, prefix, suffix, size){
     var frame = [slice frame];
     var slice_name = [slice name];
     var slice_width = "";
-    
+
     if (size == "yes"){
         slice_width = "_" + [[slice frame] width];
     }
-    
-    var baseSize = configVars.baseSize;
-    
 
-    
+    var baseSize = configVars.baseSize;
+
+
+
     var androidFactors = [NSArray arrayWithObjects:
         ["mdpi",1/baseSize],
         ["hdpi", 1.5/baseSize],
         ["xhdpi", 2/baseSize],
         ["xxhdpi", 3/baseSize],
         ["xxxhdpi", 4/baseSize]];
-	
+
     var iOSFactors = [NSArray arrayWithObjects:
 	    [".png", 1/baseSize],
 	    ["@2x.png", 2/baseSize]];
@@ -137,7 +137,7 @@ function process_slice(slice, doc, base_dir, prefix, suffix, size){
         var base = [androidFactors objectAtIndex:i];
         var factor = [base objectAtIndex:1];
         var name = [base objectAtIndex:0];
-        
+
 	    log("Processing " + slice_name + name + "(" + factor + ")");
         var slice_size = [slice_width * factor];
 	    var version = copy_layer_with_factor(slice, factor);
@@ -145,13 +145,13 @@ function process_slice(slice, doc, base_dir, prefix, suffix, size){
 	    [doc saveArtboardOrSlice:version toFile:file_name];
 	    log("Saved " + file_name);
     }
-    
+
     for (var i = 0; i < [iOSFactors count]; i++){
         var base = [iOSFactors objectAtIndex:i];
         var factor = [base objectAtIndex:1];
         var name = [base objectAtIndex:0];
-        
-	    log("Processing " + slice_name + name + "(" + factor + ")");
+
+      log("Processing " + slice_name + " " + name + " (" + factor + ")");
         var slice_size = [slice_width * factor];
 	    var version = copy_layer_with_factor(slice, factor);
 	    var file_name = base_dir + "/iOS/ic_" + prefix + slice_name + suffix + slice_width + name;
@@ -166,9 +166,9 @@ function copy_layer_with_factor(original_slice, factor){
     var frame = [copySlice frame];
 
     var rect = [copySlice rectByAccountingForStyleSize:[[copySlice absoluteRect] rect]],
-    slice = [MSSlice sliceWithRect:rect scale:factor];
+    slice = [MSExportRequest requestWithRect:rect scale:factor];
     [copySlice removeFromParent];
-    
+
     log("Slicing " + slice);
 
     return slice;
